@@ -1,0 +1,88 @@
+body {
+  font-family:'Montserrat', sans-serif;
+}
+
+.chat-container {
+  display:inline-block;
+}
+
+#messages-container {
+  position:relative;
+  width:300px;
+  height:400px;
+  border-radius:10px;
+  overflow:auto;
+}
+
+.messages {
+  display:flex;
+  flex-direction:column;
+}
+
+.message-row {
+  display:block;
+  height:80px;
+}
+
+.message-box {
+  display:inline-block;
+  border-radius:20px;
+  margin-top:10px;
+  padding-top:6px;
+  padding-bottom:6px;
+  padding-left:12px;
+  padding-right:12px;
+}
+
+.own-message {
+  background-color: #8db3ef;
+  float:right;
+}
+
+.out-message {
+  background-color: #c9d7ed;
+  float:left;
+}
+
+.input-container {
+  margin-top:30px;
+}
+
+.dropdown-history-alert {
+  position:absolute;
+  width:300px;
+  text-align:center;
+  top:82px;
+  z-index:1;
+  font-weight:600;
+  font-size:14px;
+  color:black;
+  background-color:gray;
+  opacity:0.7;
+}
+
+.users-list-container {
+  display:inline-block;
+}
+
+.user-row {
+  margin-top:5px;
+}
+
+.active {
+  background-color:green;
+}
+
+.inactive {
+  background-color:gray;
+}
+
+.status-bubble {
+  display:inline-block;
+  margin-right:10px;
+  margin-bottom:1px;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+}
+
