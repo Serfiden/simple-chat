@@ -8,10 +8,12 @@ body {
 
 #messages-container {
   position:relative;
-  width:300px;
+  min-width:300px;
+  display:inline-block;
   height:400px;
   border-radius:10px;
-  overflow:auto;
+  overflow-y:auto;
+  overflow-x:visible;
 }
 
 .messages {
@@ -21,13 +23,15 @@ body {
 
 .message-row {
   display:block;
-  height:80px;
 }
 
 .message-box {
   display:inline-block;
+  max-width:150px;
+  word-wrap:break-word;
+  min-width:90px;
   border-radius:20px;
-  margin-top:10px;
+  margin-top:5px;
   padding-top:6px;
   padding-bottom:6px;
   padding-left:12px;
@@ -35,13 +39,64 @@ body {
 }
 
 .own-message {
-  background-color: #8db3ef;
+  background-color: #46d807;
+  position:relative;
   float:right;
+  right:21px;
+  border-radius: 20px;
+  color:white;
+}
+
+.own-message:after {
+  content: ''; 
+  position: absolute; 
+  right: 47px; 
+  top: 85%; 
+  width: 0; 
+  height: 0; 
+  border: 21px solid transparent; 
+  border-left-color:#46d807; 
+  border-right: 0; 
+  border-top: 0; 
+  margin-top: -30px; 
+  margin-right: -60px;
 }
 
 .out-message {
   background-color: #c9d7ed;
+  position:relative;
   float:left;
+  left:21px;
+  border-radius: 20px;
+}
+
+.out-message:after {
+  content: ''; 
+  position: absolute; 
+  left: 47px; 
+  top: 85%; 
+  width: 0; 
+  height: 0; 
+  border: 21px solid transparent; 
+  border-right-color:#c9d7ed; 
+  border-left: 0; 
+  border-top: 0; 
+  margin-top: -30px; 
+  margin-left: -60px;
+}
+
+.message-sender-box {
+  font-weight:600;
+  font-size:14px;
+}
+
+.message-text {
+}
+
+.message-date-box {
+  float:right;
+  display:inline-block;
+  font-size:12px;
 }
 
 .input-container {
@@ -63,10 +118,14 @@ body {
 
 .users-list-container {
   display:inline-block;
+  position: absolute;
+  top: 93px;
+  left: 25vw;
 }
 
 .user-row {
   margin-top:5px;
+  position:relative;
 }
 
 .active {
