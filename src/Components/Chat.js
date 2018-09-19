@@ -11,6 +11,7 @@ const MAPPINGS = (ctx) => {
 		'chat message': ctx.receiveMessage,
 		'user rename': ctx.userRename,
 		'user leave': ctx.userLeave,
+		'room change': ctx.roomChange, 
 	}
 }
 
@@ -39,6 +40,7 @@ export default class Chat extends Component {
 		this.userRename = this.userRename.bind(this);
 		this.userLeave = this.userLeave.bind(this);
 		this.receiveMessage = this.receiveMessage.bind(this);
+		this.roomChange = this.roomChange.bind(this);
 	}
 
 	componentDidMount() {
@@ -47,6 +49,14 @@ export default class Chat extends Component {
 				MAPPINGS(this)[key](msg);
 			})
 		}
+
+		this.setState({
+			messages: [{
+				user: 'You',
+				content: ' connected to Global chat',
+				type: MESSAGE_TYPE.STATUS_UPDATE
+			}]
+		})
 	}
 
 	componentDidUpdate() {
@@ -135,6 +145,16 @@ export default class Chat extends Component {
 			return {
 				messages: prevState.messages.concat(msg)
 			}
+		})
+	}
+
+	roomChange(room) {
+		this.setState({
+			messages: [{
+				user: 'You',
+				content: ' switched to ' + room,
+				type: MESSAGE_TYPE.STATUS_UPDATE
+			}]
 		})
 	}
 

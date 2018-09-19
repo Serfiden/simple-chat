@@ -1,23 +1,30 @@
-/*const users = [];
-const sockets = [];
-const rooms = [];*/
-
-
 const users = [];
 const rooms = {
 	'global#1': [],
 	'global#2': [],
 	'global#3': []
 }
+const sockets = [];
 
-const MESSAGE_TYPES = {
+const PUBLIC_ROOM_NAMES = {
+	'global#1': 'Global chat',
+	'global#2': 'All fun and games',
+	'global#3': 'Dig bick energy'
+}
+
+const CHAT_MESSAGE_TYPE = {
 	OUTGOING: 'outgoing',
 	INCOMING: 'incoming',
 	STATUS_UPDATE: 'status update'
 }
 
-function filterByRoom (room) {
-
+const MESSAGE_TO_CLIENT_TYPE = {
+	USER_JOIN: 'user join',
+	USER_RENAME: 'user rename',
+	USER_LEAVE: 'user leave',
+	USER_DISCONNECT: 'user disconnect',
+	SERVE_ONLINE_USERS: 'online users',
+	ROOM_CHANGE: 'room change',
 }
 
 function login (msg, socket, io) {
@@ -28,6 +35,7 @@ function login (msg, socket, io) {
 	socket.emit('online users', rooms['global#1']);
 	users.push(msg);
 	rooms['global#1'].push(msg);
+	sockets.push(socket);
 }
 
 function userRename (msg, socket, io) {
@@ -41,34 +49,62 @@ function userRename (msg, socket, io) {
 	socket.broadcast.emit('user rename', msg);
 }
 
-function privateMessage (msg, socket, io) {
-
-}
-
-
 function chatMessage (msg, socket, io) {
-	msg.type = MESSAGE_TYPES.INCOMING;
+	msg.type = CHAT_MESSAGE_TYPE.INCOMING;
 	socket.broadcast.to(socket.room).emit('chat message', msg);
 }
 
-function roomChange (msg, socket, io) {
+function changeToPublicRoom (msg, socket) {
 	let roomsIdx = rooms[socket.room].indexOf(socket.username);
-
-	socket.leave(msg.prevRoom);
 	rooms[socket.room].splice(roomsIdx, 1);
-	socket.broadcast.to(msg.prevRoom).emit('user leave', socket.username);
-	
+
+	socket.emit('online users', rooms[msg.currentRoom]);
+	socket.emit('room change', PUBLIC_ROOM_NAMES[msg.currentRoom]);
 	socket.join(msg.currentRoom);
 	socket.room = msg.currentRoom;
-	socket.emit('online users', rooms[msg.currentRoom]);
+
 	rooms[msg.currentRoom].push(socket.username);
 	socket.broadcast.to(msg.currentRoom).emit('user join', socket.username);
 }
 
+function changeToPrivateRoom (msg, socket) {
+	socket.emit('online users', (rooms[msg.currentRoom] === undefined ? [] : rooms[msg.currentRoom]));
+	socket.emit('room change', 'Private: ' + msg.currentRoom);
+
+	socket.join(msg.currentRoom);
+	socket.room = msg.currentRoom;
+	let receivingSocket = sockets[users.indexOf(msg.currentRoom.split('-')[1])];
+
+	if (rooms[msg.currentRoom] === undefined) {
+		receivingSocket.emit('private message request', socket.username);
+		rooms[msg.currentRoom] = [];
+	}
+}
+
+function privateMessage(msg, socket, io) {
+
+}
+
+function roomChange (msg, socket, io) {
+	socket.leave(msg.prevRoom);
+	socket.broadcast.to(msg.prevRoom).emit('user leave', socket.username);
+
+	if (msg.type === 'public') {
+		changeToPublicRoom(msg, socket);
+	} else if (msg.type === 'private') {
+		changeToPrivateRoom(msg, socket);
+	}
+}
+
 function disconnect (msg, socket, io) {
-	socket.broadcast.emit('user disconnect', socket.username);
-	let idx = users.indexOf(socket.username);
-	users.splice(idx, 1);
+	if (socket.username !== undefined) {
+		let usersIdx = users.indexOf(socket.username);
+	 	let roomsIdx = rooms[socket.room].indexOf(socket.username);
+		
+		socket.broadcast.emit('user disconnect', socket.username);
+		users.splice(usersIdx, 1);
+		rooms[socket.room].splice(roomsIdx, 1);
+	}
 }
 
 const ACTIONS = {

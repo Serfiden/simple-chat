@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import User from './User.js';
+import PrivateMessageContext from './PrivateMessageContext.js';
 
 const MAPPINGS = (ctx) => {
 	return {
@@ -15,13 +16,15 @@ export default class UserList extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			users: []
+			users: [],
+			newPrivateReceiver: ''
 		}
 		this.socket = props.connection;
 		this.showOnlineUsers = this.showOnlineUsers.bind(this);
 		this.userConnect = this.userConnect.bind(this);
 		this.userLeave = this.userLeave.bind(this);
 		this.userRename = this.userRename.bind(this);
+		this.openPrivateRoom = this.openPrivateRoom.bind(this);
 	}
 
 	componentDidMount() {
@@ -67,11 +70,21 @@ export default class UserList extends Component {
 		})
 	}
 
+	openPrivateRoom(e) {
+		this.setState({
+			newPrivateReceiver: e.target.innerText
+		}) 
+	}
+
 	render() {
 		return (
-			<div className = 'users-list-container'>
+		<PrivateMessageContext.Consumer>
+		{({createPrivateRoom}) => ( 
+			<div className = 'users-list-container' onClick = {e => createPrivateRoom(e.target.innerText)}>
 				{this.state.users.map((user) => <User name = {user} />)}
 			</div>
+		)}
+		</PrivateMessageContext.Consumer>
 		)
 	}
 }

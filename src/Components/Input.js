@@ -6,8 +6,15 @@ export default class Input extends Component {
 		this.state = {
 			message: ''
 		}
+		this.setInputRef = el => {
+			this.textInput = el;
+		}
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.sendMessage = this.sendMessage.bind(this);
+	}
+
+	componentDidMount() {
+		this.textInput.focus();
 	}
 
 	handleInputChange(e) {
@@ -34,6 +41,7 @@ export default class Input extends Component {
 					type="text" 
 					placeholder="Your message here"
 					value={this.state.message}
+					ref={this.setInputRef}
 					onChange={this.handleInputChange}
 					onKeyPress = {(e) => {
 						if (e.key === 'Enter') {

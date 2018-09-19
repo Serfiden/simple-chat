@@ -2,16 +2,19 @@ import React, { Component } from 'react';
 
 const DEFAULT_ROOMS = [
   {
-    name: 'Global chat #1',
-    roomCode: 'global#1'
+    name: 'Global chat',
+    roomCode: 'global#1',
+    type: 'public',
   },
   {
-    name: 'Global chat #2',
-    roomCode: 'global#2' 
+    name: 'All fun and games',
+    roomCode: 'global#2',
+    type: 'public', 
   },
   {
-    name: 'Global chat #3',
-    roomCode: 'global#3'
+    name: 'Dig bick energy',
+    roomCode: 'global#3',
+    type: 'public',
   }
 ];
 
@@ -19,28 +22,60 @@ export default class RoomSelect extends Component {
 	constructor (props) {
 		super(props);
 		this.state = {
-			rooms: DEFAULT_ROOMS
+			rooms: JSON.parse(JSON.stringify(DEFAULT_ROOMS))
 		}
+		this.activeRoom = DEFAULT_ROOMS[0];
 		this.connection = props.connection;
 		this.setChatSelectRef = el => {
       		this.chatSelect = el;
     	}
-		this.rooms = DEFAULT_ROOMS;
-    	this.activeRoom = DEFAULT_ROOMS[0];
-
     	this.showDropdown = this.showDropdown.bind(this);
     	this.hideDropdown = this.hideDropdown.bind(this);
     	this.onChatRoomSelect = this.onChatRoomSelect.bind(this);
 	}
 
+	componentDidMount() {
+		this.connection.on('private message request', (msg) => {
+			this.onPrivateMessageRequest(msg);
+		});
+		this.chatSelect.querySelectorAll('.chat-room-option')[0].classList.add('option-active');
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		if (prevProps.privateReceiver !== this.props.privateReceiver) {
+			this.setState(prevState => {
+				return {
+					rooms: prevState.rooms.concat({
+						name: 'PM: ' + this.props.privateReceiver,
+						roomCode: this.props.user + '-' + this.props.privateReceiver,
+						type: 'private'
+					})
+				}
+			});
+		}
+	}
+
+	onPrivateMessageRequest(msg) {
+		this.setState(prevState => {
+			return {
+				rooms: prevState.rooms.concat({
+					name: 'PM: ' + msg,
+					roomCode: msg + '-' + this.props.user,
+					type: 'private'
+				})
+			}
+		})
+	}
+
 	onChatRoomSelect(e, room) {
 	    this.chatSelect.querySelectorAll('.chat-room-option').forEach(el => el.classList.remove('option-active'));
 	    e.target.classList.add('option-active');
-
-	    this.connection.emit('room change', {
-	      	prevRoom: this.activeRoom.roomCode,
-	        currentRoom: room.roomCode
-	    });
+	
+	   	this.connection.emit('room change', {
+	 		prevRoom: this.activeRoom.roomCode,
+        	currentRoom: room.roomCode,
+        	type: room.type
+   		});
 
 	    this.activeRoom = room;
   	}
@@ -72,7 +107,8 @@ export default class RoomSelect extends Component {
                   return <div 
                     className = 'chat-room-option'
                     onClick = {(e) => {
-                      this.onChatRoomSelect(e, el);  
+                    	if (el !== this.activeRoom)
+                      		this.onChatRoomSelect(e, el);  
                     }}
                     > {el.name} </div>
                 })
