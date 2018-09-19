@@ -12,7 +12,7 @@ module.exports = {
 		port:3000,
 		headers: {
             "Access-Control-Allow-Origin": "*" 
-        }
+        },
 	},
 	module: {
 		rules: [
