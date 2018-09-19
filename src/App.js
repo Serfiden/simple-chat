@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import './App.css';
 import Chat from './Components/Chat.js';
 import LoginForm from './Components/LoginForm.js';
-import UserList from './Components/UserList.js';
+import RoomSelect from './Components/RoomSelect.js';
 
 class App extends Component {
   constructor() {
@@ -13,6 +13,7 @@ class App extends Component {
       user: ''
     }
     this.connection = null;
+    this.chatSelect = null;
     this.login = this.login.bind(this);
     this.rename = this.rename.bind(this);
   }
@@ -23,9 +24,11 @@ class App extends Component {
 
   login(user) {
     this.connection.emit('login', user);
-    this.setState({
-      user: user,
-      loggedIn: true
+    this.setState(prevState => {
+      return {
+        user: user,
+        loggedIn: true,
+      }
     });
   }
 
@@ -45,11 +48,15 @@ class App extends Component {
     return (
       <div>
         {this.state.loggedIn &&
-          <Chat user = {this.state.user} connection = {this.connection}/> 
+          <div className = 'app-container'>
+            <Chat user = {this.state.user} connection = {this.connection}/>
+            <RoomSelect connection = {this.connection}/>
+          </div>
         }           
         <LoginForm submit = {this.login} rename = {this.rename}/>
       </div>
     );
+
   }
 }
 

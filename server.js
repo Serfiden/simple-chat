@@ -10,6 +10,7 @@ const CHANNELS = {
 	PRIVATE_MESSAGE: 'private message',
 	GLOBAL_MESSAGE: 'chat message',
 	DISCONNECT: 'disconnect',
+	ROOM_CHANGE: 'room change'
 }
 
 app.get('/', function(req, res) {

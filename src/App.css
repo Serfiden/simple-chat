@@ -1,5 +1,92 @@
 body {
+  margin:0;
+  padding:0;
   font-family:'Montserrat', sans-serif;
+}
+
+.app-container {
+  
+}
+
+
+.chat-room-select-container {
+  display:inline-block;
+  position:absolute;
+  top:82px;
+  left:310px;
+}
+
+@keyframes show-dropdown {
+  from {
+    visibility: hidden;
+  } to {
+    visibility: visible;
+  }
+}
+
+@keyframes show-dropdown-arrow {
+  from {
+
+  } to {
+    transform: rotate(90deg);
+  }
+}
+
+@keyframes hide-dropdown {
+  from {
+    visibility: visible;
+  } to {
+    visibility: hidden;
+  }
+}
+
+@keyframes hide-dropdown-arrow {
+  from {
+    transform: rotate(90deg);
+    } to {
+      transform: rotate(0deg);
+    }
+}
+
+.chat-room-select {
+  border-radius:15px;
+  padding:5px 10px 5px 10px;
+  border:2px solid;
+  background-color:#46d807;
+  color:white;
+  font-weight:600;
+}
+
+.select-arrow {
+  position:relative;
+  display:inline-block;
+  left: 10px;
+  margin-right:10px;
+  width:0;
+  height:0;
+  border-top: 5px solid transparent; 
+  border-left: 10px solid white; 
+  border-bottom: 5px solid transparent;
+}
+
+.chat-room-dropdown-container {
+  box-shadow:1px 2px 2px 2px gray;
+  border-radius:10px;
+  box-sizing: border-box;
+  visibility: hidden;
+}
+
+.chat-room-option {
+  padding:4px 8px 4px 8px;
+}
+
+.option-active {
+  background-color: #d2ddef;
+}
+
+.chat-room-option:hover {
+  background-color:#d2ddef;
+  cursor:pointer;
 }
 
 .chat-container {
@@ -120,7 +207,7 @@ body {
   display:inline-block;
   position: absolute;
   top: 93px;
-  left: 25vw;
+  left: 30vw;
 }
 
 .user-row {
@@ -144,4 +231,6 @@ body {
   height:7px;
   border-radius:50%;
 }
+
+
 

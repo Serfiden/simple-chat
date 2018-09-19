@@ -4,9 +4,10 @@ import User from './User.js';
 const MAPPINGS = (ctx) => {
 	return {
 		'online users': ctx.showOnlineUsers,
-		'user connect': ctx.userConnect,
-		'user disconnect': ctx.userDisconnect,
-		'user rename': ctx.userRename
+		'user join': ctx.userConnect,
+		'user disconnect': ctx.userLeave,
+		'user rename': ctx.userRename,
+		'user leave': ctx.userLeave,
 	}
 }
 
@@ -19,7 +20,7 @@ export default class UserList extends Component {
 		this.socket = props.connection;
 		this.showOnlineUsers = this.showOnlineUsers.bind(this);
 		this.userConnect = this.userConnect.bind(this);
-		this.userDisconnect = this.userDisconnect.bind(this);
+		this.userLeave = this.userLeave.bind(this);
 		this.userRename = this.userRename.bind(this);
 	}
 
@@ -46,7 +47,7 @@ export default class UserList extends Component {
 		});
 	}
 
-	userDisconnect(user) {
+	userLeave(user) {
 		this.setState((prevState) => {
 			let connectedUsers = prevState.users.concat();
 			connectedUsers.splice(connectedUsers.indexOf(user), 1);

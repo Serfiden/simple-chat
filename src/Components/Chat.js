@@ -6,10 +6,11 @@ import MessageGenerator from '../Services/MessageGenerator.js';
 
 const MAPPINGS = (ctx) => {
 	return {
-		'user connect': ctx.userConnect,
+		'user join': ctx.userJoin,
 		'user disconnect': ctx.userDisconnect,
 		'chat message': ctx.receiveMessage,
-		'user rename': ctx.userRename
+		'user rename': ctx.userRename,
+		'user leave': ctx.userLeave,
 	}
 }
 
@@ -33,9 +34,10 @@ export default class Chat extends Component {
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.sendMessage = this.sendMessage.bind(this);
 		this.clearChat = this.clearChat.bind(this);
-		this.userConnect = this.userConnect.bind(this);
+		this.userJoin = this.userJoin.bind(this);
 		this.userDisconnect = this.userDisconnect.bind(this);
 		this.userRename = this.userRename.bind(this);
+		this.userLeave = this.userLeave.bind(this);
 		this.receiveMessage = this.receiveMessage.bind(this);
 	}
 
@@ -52,7 +54,7 @@ export default class Chat extends Component {
 		messagesContainer.scrollTop = messagesContainer.scrollHeight;
 	}
 
-	userConnect(msg) {
+	userJoin(msg) {
 		this.setState((prevState) => {
 			return {
 				messages: prevState.messages.concat({
@@ -65,15 +67,29 @@ export default class Chat extends Component {
 	}
 
 	userDisconnect(msg) {
-		this.setState((prevState) => {
+		if (msg !== null) {
+			this.setState((prevState) => {
+				return {
+					messages: prevState.messages.concat({
+						user: msg,
+						content: ' has disconnected!',
+						type: MESSAGE_TYPE.STATUS_UPDATE,
+					})
+				}
+			});
+		}
+	}
+
+	userLeave(msg) {
+		this.setState(prevState => {
 			return {
 				messages: prevState.messages.concat({
 					user: msg,
-					content: ' has disconnected!',
-					type: MESSAGE_TYPE.STATUS_UPDATE,
+					content: ' has left the room!',
+					type: MESSAGE_TYPE.STATUS_UPDATE
 				})
 			}
-		});
+		})
 	}
 
 	userRename(msg) {
