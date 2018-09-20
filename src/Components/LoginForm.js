@@ -10,6 +10,13 @@ export default class LoginForm extends Component {
 		this.handleInputChange = this.handleInputChange.bind(this);
     this.onLogin = this.onLogin.bind(this);
     this.onRename = this.onRename.bind(this);
+    this.setInputRef = el => {
+      this.inputRef = el;
+    }
+  }
+
+  componentDidMount() {
+    this.inputRef.focus();
   }
 
   onLogin() {
@@ -34,7 +41,8 @@ export default class LoginForm extends Component {
 			<div className = 'login-form-container'> 
           		<label> {this.state.loggedIn ? 'Change your username: ' : 'Your username goes here: '} </label>
           		<input 
-          			type="text" 
+          			type="text"
+                ref={this.setInputRef} 
           			value = {this.state.user} 
           			onChange={this.handleInputChange} 
           			onKeyPress={(e) => {
