@@ -4,7 +4,7 @@
   "description": "Chat app using React and Socket.io",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently --kill-others \"nodemon server.js\" \"webpack-dev-server --mode development\"",
+    "start": "concurrently --kill-others \"nodemon server/server.js\" \"webpack-dev-server --mode development\"",
     "build": "webpack --mode production"
   },
   "keywords": [],
