@@ -4,17 +4,14 @@ const DEFAULT_ROOMS = [
   {
     name: 'Global chat',
     roomCode: 'global#1',
-    type: 'public',
   },
   {
     name: 'All fun and games',
     roomCode: 'global#2',
-    type: 'public', 
   },
   {
-    name: 'Dig bick energy',
+    name: 'Fairy dust',
     roomCode: 'global#3',
-    type: 'public',
   }
 ];
 
@@ -47,8 +44,7 @@ export default class RoomSelect extends Component {
 				return {
 					rooms: prevState.rooms.concat({
 						name: 'PM: ' + this.props.privateReceiver,
-						roomCode: this.props.user + '-' + this.props.privateReceiver,
-						type: 'private'
+						roomCode: 'PRIVATE',
 					})
 				}
 			});
@@ -56,26 +52,34 @@ export default class RoomSelect extends Component {
 	}
 
 	onPrivateMessageRequest(msg) {
-		this.setState(prevState => {
-			return {
-				rooms: prevState.rooms.concat({
-					name: 'PM: ' + msg,
-					roomCode: msg + '-' + this.props.user,
-					type: 'private'
-				})
-			}
-		})
+		if (this.state.rooms.find(el => el.name === ('PM: ' + msg)) === undefined) {
+			this.setState(prevState => {
+				return {
+					rooms: prevState.rooms.concat({
+						name: 'PM: ' + msg,
+						roomCode: 'PRIVATE',
+					})
+				}
+			})	
+		}
 	}
 
 	onChatRoomSelect(e, room) {
 	    this.chatSelect.querySelectorAll('.chat-room-option').forEach(el => el.classList.remove('option-active'));
 	    e.target.classList.add('option-active');
 	
-	   	this.connection.emit('room change', {
-	 		prevRoom: this.activeRoom.roomCode,
-        	currentRoom: room.roomCode,
-        	type: room.type
-   		});
+
+
+		if (room.roomCode === 'PRIVATE') {
+			this.connection.emit('room change', {
+				currentRoom: 'PRIVATE',
+				roomPartner: room.name.replace('PM: ', '')
+			})
+		} else {
+			this.connection.emit('room change', {
+        		currentRoom: room.roomCode,
+   			});
+		}
 
 	    this.activeRoom = room;
   	}
