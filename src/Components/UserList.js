@@ -24,7 +24,6 @@ export default class UserList extends Component {
 		this.userConnect = this.userConnect.bind(this);
 		this.userLeave = this.userLeave.bind(this);
 		this.userRename = this.userRename.bind(this);
-		this.openPrivateRoom = this.openPrivateRoom.bind(this);
 	}
 
 	componentDidMount() {
@@ -70,21 +69,11 @@ export default class UserList extends Component {
 		})
 	}
 
-	openPrivateRoom(e) {
-		this.setState({
-			newPrivateReceiver: e.target.innerText
-		}) 
-	}
-
 	render() {
 		return (
-		<PrivateMessageContext.Consumer>
-		{({createPrivateRoom}) => ( 
-			<div className = 'users-list-container' onClick = {e => createPrivateRoom(e.target.innerText)}>
+			<div className = 'users-list-container'>
 				{this.state.users.map((user) => <User name = {user} />)}
 			</div>
-		)}
-		</PrivateMessageContext.Consumer>
 		)
 	}
 }

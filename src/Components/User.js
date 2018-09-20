@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PrivateMessageContext from './PrivateMessageContext.js';
 
 export default class User extends Component {
 	constructor(props) {
@@ -10,10 +11,14 @@ export default class User extends Component {
 
 	render() {
 		return (
-			<p className = 'user-row'>
-				<span className = {(this.state.active ? 'active' : 'inactive') + ' status-bubble'}></span>
-				{this.props.name}
-			</p>
+			<PrivateMessageContext.Consumer>
+			{({createPrivateRoom}) => ( 
+				<p className = 'user-row' onClick = {e => {createPrivateRoom(e.target.innerText)}}>
+					<span className = {(this.state.active ? 'active' : 'inactive') + ' status-bubble'}></span>
+					{this.props.name}
+				</p>
+			)}
+			</PrivateMessageContext.Consumer>
 		)
 	}
 }
