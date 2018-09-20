@@ -40,14 +40,15 @@ export default class RoomSelect extends Component {
 
 	componentDidUpdate(prevProps, prevState) {
 		if (prevProps.privateReceiver !== this.props.privateReceiver) {
-			this.setState(prevState => {
-				return {
-					rooms: prevState.rooms.concat({
-						name: 'PM: ' + this.props.privateReceiver,
-						roomCode: 'PRIVATE',
-					})
-				}
-			});
+			if (this.state.rooms.find(el => el.name === ('PM: ' + this.props.privateReceiver)) === undefined)
+				this.setState(prevState => {
+					return {
+						rooms: prevState.rooms.concat({
+							name: 'PM: ' + this.props.privateReceiver,
+							roomCode: 'PRIVATE',
+						})
+					}
+				});
 		}
 	}
 
@@ -67,8 +68,6 @@ export default class RoomSelect extends Component {
 	onChatRoomSelect(e, room) {
 	    this.chatSelect.querySelectorAll('.chat-room-option').forEach(el => el.classList.remove('option-active'));
 	    e.target.classList.add('option-active');
-	
-
 
 		if (room.roomCode === 'PRIVATE') {
 			this.connection.emit('room change', {

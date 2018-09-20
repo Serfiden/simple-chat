@@ -8,16 +8,11 @@ function login (msg, socket, io) {
 }
 
 function userRename (msg, socket, io) {
-	let user = Users.getByName(msg.prevUser);
-	user.rename(msg.newUser);
+	Users.getByName(msg.prevUser).rename(msg.newUser);
 }
 
 function chatMessage (msg, socket, io) {
 	Users.getById(socket.id).sendMessage(msg);
-}
-
-function privateMessage(msg, socket, io) {
-
 }
 
 function roomChange (msg, socket, io) {
@@ -37,7 +32,6 @@ function disconnect (msg, socket, io) {
 const ACTIONS = {
 	LOGIN: login,
 	USER_RENAME: userRename,
-	PRIVATE_MESSAGE: privateMessage,
 	GLOBAL_MESSAGE: chatMessage,
 	DISCONNECT: disconnect,
 	ROOM_CHANGE: roomChange

@@ -40,6 +40,7 @@ class Users {
 		if (room !== ROOM_NAME.PRIVATE) 
 			user.receiveOnlineUsers(this.getByRoom(room));
 		else {
+			user.receiveOnlineUsers([]);
 			console.log(msg.roomPartner);
 			user.receivePartner(this.getByName(msg.roomPartner));
 		}

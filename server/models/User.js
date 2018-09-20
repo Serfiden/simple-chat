@@ -84,6 +84,7 @@ class User {
 
 		this.socket.join(room);
 		this.room = room;
+		this.socket.emit(MESSAGE.ROOM_CHANGE, this.room);
 		
 		if (room !== 'PRIVATE') {
 			this.socket.broadcast.to(room).emit(MESSAGE.JOIN, this.name);
