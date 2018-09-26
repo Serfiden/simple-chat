@@ -11,13 +11,13 @@ const MAPPINGS = (ctx) => {
 		'chat message': ctx.receiveMessage,
 		'user rename': ctx.userRename,
 		'user leave': ctx.userLeave,
-		'room change': ctx.roomChange, 
+		'room change': ctx.roomChange,
+		'chat history': ctx.receiveHistory, 
 	}
 }
 
 const MESSAGE_TYPE = {
-	OUTGOING: 'outgoing',
-	INCOMING: 'incoming',
+	USER_MESSAGE: 'user message',
 	STATUS_UPDATE: 'status update',
 	USER_RENAME: 'user rename'
 }
@@ -41,6 +41,7 @@ export default class Chat extends Component {
 		this.userLeave = this.userLeave.bind(this);
 		this.receiveMessage = this.receiveMessage.bind(this);
 		this.roomChange = this.roomChange.bind(this);
+		this.receiveHistory = this.receiveHistory.bind(this);
 	}
 
 	componentDidMount() {
@@ -128,7 +129,7 @@ export default class Chat extends Component {
 			user: this.props.user,
 			time: new Date(),
 			content: msg,
-			type: MESSAGE_TYPE.OUTGOING
+			type: MESSAGE_TYPE.USER_MESSAGE
 		}
 
 		this.setState((prevState) => {
@@ -158,6 +159,12 @@ export default class Chat extends Component {
 		})
 	}
 
+	receiveHistory(msg) {
+		this.setState({
+			messages: msg
+		})
+	}
+
 	clearChat() {
 		this.setState({
 			messages: []
@@ -180,7 +187,7 @@ export default class Chat extends Component {
 				<div id = 'messages-container'>
 					<div className = 'messages'>
 						{this.state.messages.map(msg => {
-							return MessageGenerator(msg.type, msg);
+							return MessageGenerator(msg.type, this.props.user, msg);
 						})}
 					</div>
 				</div>

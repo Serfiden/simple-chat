@@ -1,5 +1,7 @@
 import React from 'react';
 
+let chatUser = '';
+
 function parseDate (arg) {
 	let date = new Date(arg);
 	let hours = (date.getHours() < 10) ? '0' + date.getHours() : date.getHours();
@@ -8,11 +10,17 @@ function parseDate (arg) {
 }
 
 const TYPE = {
-	OUTGOING: 'outgoing',
-	INCOMING: 'incoming',
+	USER_MESSAGE: 'user message',
 	STATUS_UPDATE: 'status update',
 	USER_RENAME: 'user rename',
 	TYPING: 'typing',
+}
+
+function UserMessage (msg) {
+	if (msg.user === chatUser) {
+		return Outgoing(msg);
+	} 
+	return Incoming(msg);
 }
 
 function StatusUpdate (props) {
@@ -62,13 +70,13 @@ function Typing (props) {
 
 const MAPPING = {
 	[TYPE.STATUS_UPDATE]: StatusUpdate,
-	[TYPE.INCOMING]: Incoming,
-	[TYPE.OUTGOING]: Outgoing,
+	[TYPE.USER_MESSAGE]: UserMessage,
 	[TYPE.USER_RENAME]: UserRename,
 	[TYPE.TYPING]: Typing, 
 }
 
-function MessageGenerator(type, data) {
+function MessageGenerator(type, owner, data) {
+	chatUser = owner;
 	return MAPPING[type](data);
 }
 

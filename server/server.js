@@ -7,7 +7,6 @@ let actions = require('./adapters/actions.js');
 const CHANNELS = {
 	LOGIN: 'login',
 	USER_RENAME: 'user rename',
-	PRIVATE_MESSAGE: 'private message',
 	GLOBAL_MESSAGE: 'chat message',
 	DISCONNECT: 'disconnect',
 	ROOM_CHANGE: 'room change'

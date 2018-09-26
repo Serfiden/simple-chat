@@ -14,6 +14,7 @@ const MESSAGE = {
 	ROOM_CHANGE: 'room change',
 	PUBLIC: 'chat message',
 	PRIVATE_REQUEST: 'private message request',
+	CHAT_HISTORY: 'chat history',
 }
 
 const CHAT_MESSAGE_TYPE = {
@@ -43,18 +44,37 @@ class User {
 		return this.id;
 	}
 
-	login () {
-		this.room = ROOM_NAME.GLOBAL_1;
-		this.socket.join(ROOM_NAME.GLOBAL_1);
-		this.socket.broadcast.to(ROOM_NAME.GLOBAL_1).emit(MESSAGE.JOIN, this.name);
+	getSocket () {
+		return this.socket;
 	}
 
-	receiveOnlineUsers (roomUsersNames) {
-		this.socket.emit(MESSAGE.ONLINE_USERS, roomUsersNames);
+	joinRoom (room, chatHistory) {
+		this.room = room;
+		this.socket.join(room);
+		this.socket.emit(MESSAGE.CHAT_HISTORY, chatHistory);
+		this.socket.broadcast.to(this.room).emit(MESSAGE.JOIN, this.name);
+	}
+
+	leaveRoom () {
+		this.socket.leave(this.room);
+		this.room = '';
 	}
 
 	receivePartner (user) {
 		this.privatePartnerId = user.getId();
+	}
+
+	receivePrivateMessageRequest (username) {
+		this.socket.emit(MESSAGE.PRIVATE_REQUEST, username);
+		console.log(username);
+	}
+
+	newUserJoin (username) {
+		this.socket.emit(MESSAGE.JOIN, username);
+	}
+
+	userLeave (username) {
+		this.socket.emit(MESSAGE.LEAVE, username);
 	}
 
 	rename (newName) {
@@ -66,32 +86,8 @@ class User {
 	}
 	
 	sendMessage (msg) {
-		msg.type = CHAT_MESSAGE_TYPE.INCOMING;
-		if (this.room === ROOM_NAME.PRIVATE) {
-			this.socket.broadcast.to(this.privatePartnerId).emit(MESSAGE.PUBLIC, msg);
-		} else {
-			this.socket.broadcast.to(this.room).emit(MESSAGE.PUBLIC, msg);
-		}
-	}
-
-	changeRoom (msg) {
-		let room = msg.currentRoom;
-		
-		if (this.room !== 'PRIVATE') {
-			this.socket.broadcast.to(this.room).emit(MESSAGE.LEAVE, this.name);
-		}
-		this.socket.leave(this.room);
-
-		this.socket.join(room);
-		this.room = room;
-		this.socket.emit(MESSAGE.ROOM_CHANGE, this.room);
-		
-		if (room !== 'PRIVATE') {
-			this.socket.broadcast.to(room).emit(MESSAGE.JOIN, this.name);
-		} else {
-			console.log(this.privatePartnerId);
-			this.socket.broadcast.to(this.privatePartnerId).emit(MESSAGE.PRIVATE_REQUEST, this.name);
-		}
+		// msg.type = CHAT_MESSAGE_TYPE.INCOMING;
+		this.socket.broadcast.to(this.room).emit(MESSAGE.PUBLIC, msg);
 	}
 
 	disconnect () {

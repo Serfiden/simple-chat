@@ -1,10 +1,11 @@
-const Users = require('../models/collections/Users.js');
 const User = require('../models/User.js');
+const Users = require('../models/collections/Users.js');
+const Rooms = require('../models/collections/Rooms.js');
 
 function login (msg, socket, io) {
 	let newUser = new User(msg, socket);
-	newUser.login();
-	Users.addUser(newUser);
+	Rooms.getByName('global#1').addUser(newUser);
+	Users.add(newUser);
 }
 
 function userRename (msg, socket, io) {
@@ -12,13 +13,32 @@ function userRename (msg, socket, io) {
 }
 
 function chatMessage (msg, socket, io) {
-	Users.getById(socket.id).sendMessage(msg);
+	let user = Users.getById(socket.id);
+	user.sendMessage(msg);
+	Rooms.getByName(user.getRoom()).addMessage(msg);
 }
 
 function roomChange (msg, socket, io) {
 	let user = Users.getById(socket.id);
-	Users.onUserRoomChange(user, msg);
-	user.changeRoom(msg);
+	Rooms.getByName(user.getRoom()).removeUser(user);
+	user.leaveRoom();
+
+	if (msg.currentRoom === 'PRIVATE') {
+		let partner = Users.getByName(msg.roomPartner);
+		let privateRoom = Rooms.getPrivateRoom(user, partner);
+		user.receivePartner(partner);			
+		
+		if (privateRoom === undefined) {
+			console.log('sal');
+			privateRoom = Rooms.createPrivateRoom(user, partner);
+			partner.receivePrivateMessageRequest(user.getName());
+		} 
+		
+		Rooms.add(privateRoom);
+		privateRoom.addUser(user);
+	} else {
+		Rooms.getByName(msg.currentRoom).addUser(user);
+	}
 }
 
 function disconnect (msg, socket, io) {
