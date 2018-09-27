@@ -2,6 +2,10 @@ const User = require('../models/User.js');
 const Users = require('../models/collections/Users.js');
 const Rooms = require('../models/collections/Rooms.js');
 
+const DEFAULT_ROOMS = [
+	'global#1', 'global#2', 'global#3'
+];
+
 function login (msg, socket, io) {
 	let newUser = new User(msg, socket);
 	Rooms.getByName('global#1').addUser(newUser);
@@ -9,13 +13,29 @@ function login (msg, socket, io) {
 }
 
 function userRename (msg, socket, io) {
-	Users.getByName(msg.prevUser).rename(msg.newUser);
+	let user = Users.getByName(msg.prevUser);
+	let userPrivateRooms = Rooms.getUserPrivateRooms(user);
+	let privatePartners = userPrivateRooms.reduce((acc, el) => {
+		return acc.concat(el.getName().replace(' ', '').replace(user.getId(), ''));
+	}, []);
+	user.rename(msg.newUser, privatePartners);
+	Rooms.getByName(user.getRoom()).userRename(msg.prevUser, msg.newUser);
+	Rooms.getUserPrivateRooms(user).map(room => room.userRename(msg.prevUser, msg.newUser));
 }
 
 function chatMessage (msg, socket, io) {
-	let user = Users.getById(socket.id);
-	user.sendMessage(msg);
-	Rooms.getByName(user.getRoom()).addMessage(msg);
+	let sender = Users.getById(socket.id);
+	let currentRoom = Rooms.getByName(sender.getRoom());
+	sender.sendMessage(msg);
+	currentRoom.addMessage(msg);
+	if (DEFAULT_ROOMS.includes(sender.getRoom())) {
+		Users.getList().filter(el => el.getName() !== sender.getName()).map(user => {
+			user.receiveMessageNotification(sender.getRoom());
+		})
+	} else {
+		let partner = Users.getById(sender.getRoom().replace(' ', '').replace(sender.getId(), ''));
+		partner.receiveMessageNotification('PM: ' + sender.getName());
+	}
 }
 
 function roomChange (msg, socket, io) {
@@ -29,7 +49,6 @@ function roomChange (msg, socket, io) {
 		user.receivePartner(partner);			
 		
 		if (privateRoom === undefined) {
-			console.log('sal');
 			privateRoom = Rooms.createPrivateRoom(user, partner);
 			partner.receivePrivateMessageRequest(user.getName());
 		} 

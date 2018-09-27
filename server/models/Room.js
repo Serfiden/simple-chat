@@ -3,6 +3,7 @@ const MESSAGE = {
 	RENAME: 'user rename',
 	LEAVE: 'user leave',
 	ONLINE_USERS: 'online users',
+	MESSAGE_NOTIFICATION: 'message notification'
 }
 
 class Room {
@@ -29,6 +30,11 @@ class Room {
 		return this.users.reduce((res, el) => {
 			return res.concat(el.getName());
 		}, []);
+	}
+
+	userRename (prevName, newName) {
+		this.users[this.users.indexOf(prevName)] = newName;
+		this.messages.filter(msg => msg.user === prevName).map(msg => msg.user = newName);
 	}
 
 	getName () {

@@ -8,11 +8,13 @@ const ROOM_NAME = {
 const MESSAGE = {
 	JOIN: 'user join',
 	RENAME: 'user rename',
+	PRIVATE_RENAME: 'user private rename',
 	LEAVE: 'user leave',
 	DISCONNECT: 'user disconnect',
 	ONLINE_USERS: 'online users',
 	ROOM_CHANGE: 'room change',
 	PUBLIC: 'chat message',
+	NOTIFICATION: 'message notification',
 	PRIVATE_REQUEST: 'private message request',
 	CHAT_HISTORY: 'chat history',
 }
@@ -66,7 +68,10 @@ class User {
 
 	receivePrivateMessageRequest (username) {
 		this.socket.emit(MESSAGE.PRIVATE_REQUEST, username);
-		console.log(username);
+	}
+
+	receiveMessageNotification (room) {
+		this.socket.emit(MESSAGE.NOTIFICATION, room);
 	}
 
 	newUserJoin (username) {
@@ -77,16 +82,19 @@ class User {
 		this.socket.emit(MESSAGE.LEAVE, username);
 	}
 
-	rename (newName) {
+	rename (newName, partners) {
 		this.socket.broadcast.to(this.room).emit(MESSAGE.RENAME, {
 			prevUser: this.name,
 			newUser: newName,
 		});
+		partners.map(partner => this.socket.broadcast.to(partner).emit(MESSAGE.PRIVATE_RENAME, {
+			prevUser: this.name,
+			newUser: newName,
+		}))
 		this.name = newName;
 	}
 	
 	sendMessage (msg) {
-		// msg.type = CHAT_MESSAGE_TYPE.INCOMING;
 		this.socket.broadcast.to(this.room).emit(MESSAGE.PUBLIC, msg);
 	}
 

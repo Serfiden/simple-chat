@@ -60,9 +60,16 @@ export default class Chat extends Component {
 		})
 	}
 
-	componentDidUpdate() {
+	componentDidUpdate(prevProps, prevState) {
 		const messagesContainer = document.getElementById('messages-container');
 		messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+		if (prevProps.user !== this.props.user) {
+			this.userRename({
+				prevUser: prevProps.user,
+				newUser: this.props.user,
+			});
+		}
 	}
 
 	userJoin(msg) {

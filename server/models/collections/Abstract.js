@@ -14,6 +14,10 @@ class Abstract {
 	getByName (name) {
 		return this.list.find(el => el.getName() === name);
 	}
+
+	getList () {
+		return this.list;
+	}
 }
 
 module.exports = Abstract;

@@ -22,6 +22,10 @@ class Rooms extends Abstract {
 	getPrivateRoom (user1, user2) {
 		return this.list.find(el => el.getName().includes(user1.getId()) && el.getName().includes(user2.getId()));
 	}
+
+	getUserPrivateRooms(user) {
+		return this.list.filter(el => el.getName().includes(user.getId()));
+	}
 }
 
 module.exports = new Rooms().init();

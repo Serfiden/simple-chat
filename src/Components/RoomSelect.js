@@ -2,16 +2,19 @@ import React, { Component } from 'react';
 
 const DEFAULT_ROOMS = [
   {
-    name: 'Global chat',
+    name: 'global#1',
     roomCode: 'global#1',
+    newMessages: 0,
   },
   {
-    name: 'All fun and games',
+    name: 'global#2',
     roomCode: 'global#2',
+  	newMessages: 0,
   },
   {
-    name: 'Fairy dust',
+    name: 'global#3',
     roomCode: 'global#3',
+  	newMessages: 0,
   }
 ];
 
@@ -19,7 +22,8 @@ export default class RoomSelect extends Component {
 	constructor (props) {
 		super(props);
 		this.state = {
-			rooms: JSON.parse(JSON.stringify(DEFAULT_ROOMS))
+			rooms: JSON.parse(JSON.stringify(DEFAULT_ROOMS)),
+			activeRoom: 'global#1',
 		}
 		this.activeRoom = DEFAULT_ROOMS[0];
 		this.connection = props.connection;
@@ -35,6 +39,15 @@ export default class RoomSelect extends Component {
 		this.connection.on('private message request', (msg) => {
 			this.onPrivateMessageRequest(msg);
 		});
+		this.connection.on('message notification', (msg) => {
+			this.onMessageNotification(msg);
+		})
+		this.connection.on('user rename', (msg) => {
+			this.onUserRename(msg);
+		});
+		this.connection.on('user private rename', (msg) => {
+			this.renamePrivateRooms(msg);
+		}); 
 		this.chatSelect.querySelectorAll('.chat-room-option')[0].classList.add('option-active');
 	}
 
@@ -46,6 +59,7 @@ export default class RoomSelect extends Component {
 						rooms: prevState.rooms.concat({
 							name: 'PM: ' + this.props.privateReceiver,
 							roomCode: 'PRIVATE',
+							newMessages: 0,
 						})
 					}
 				});
@@ -59,9 +73,22 @@ export default class RoomSelect extends Component {
 					rooms: prevState.rooms.concat({
 						name: 'PM: ' + msg,
 						roomCode: 'PRIVATE',
+						newMessages: 0,
 					})
 				}
 			})	
+		}
+	}
+
+	onMessageNotification(msg) {
+		if (this.state.activeRoom !== msg) {
+			this.setState(prevState => {
+				let rooms = prevState.rooms.slice(0, prevState.rooms.length);
+				let idx = rooms.findIndex(el => el.name === msg);
+				let messageNum = rooms[idx].newMessages + 1;
+				rooms[idx].newMessages = messageNum;
+				return rooms;
+			});
 		}
 	}
 
@@ -80,7 +107,56 @@ export default class RoomSelect extends Component {
    			});
 		}
 
-	    this.activeRoom = room;
+	    this.setState(prevState => {
+	    	let rooms = prevState.rooms.slice(0, prevState.rooms.length);
+	    	rooms[rooms.findIndex(el => el.name === room.name)].newMessages = 0;
+
+	    	return {
+	    		rooms: rooms,
+	    		activeRoom: room.name
+	   		}
+	   	});
+  	}
+
+  	onUserRename(msg) {
+  		let idx = this.state.rooms.findIndex(el => el.name === 'PM: ' + msg.prevUser);
+
+  		if (idx !== -1) {
+  			this.setState(prevState => {
+  				let rooms = prevState.rooms.slice(0, prevState.rooms.length);
+  				rooms[idx].name = 'PM: ' + msg.newUser;
+				let newActiveRoom = prevState.activeRoom === 'PM: ' + msg.prevUser ? 'PM: ' + msg.newUser : prevState.activeRoom;
+
+  				return {
+  					activeRoom: newActiveRoom,
+  					rooms: rooms
+  				};
+  			});
+  		}
+  	}
+
+  	renamePrivateRooms(msg) {
+  		let roomsToChange = this.state.rooms.reduce((acc, el, idx) => {
+  			if (el.name === ('PM: ' + msg.prevUser)) {
+  				return acc.concat(idx);
+  			}
+  			return acc;
+  		}, []);
+
+  		console.log(roomsToChange);
+
+  		if (roomsToChange !== undefined) {
+	  		this.setState(prevState => {
+	  			let rooms = prevState.rooms.slice(0, prevState.rooms.length);
+	  			roomsToChange.map(roomIdx => {
+	  				rooms[roomIdx].name = 'PM: ' + msg.newUser;
+	  			});
+
+	  			return {
+	  				rooms: rooms,
+	  			}
+	  		});
+	  	}
   	}
 
 	showDropdown() {
@@ -113,7 +189,13 @@ export default class RoomSelect extends Component {
                     	if (el !== this.activeRoom)
                       		this.onChatRoomSelect(e, el);  
                     }}
-                    > {el.name} </div>
+                    > {el.name} 
+                    	{el.newMessages !== 0 &&
+                    	<span class = "message-notification-box">
+                    		{el.newMessages}	
+                    	</span>
+                    	}
+                    </div>
                 })
                 }
               </div>
